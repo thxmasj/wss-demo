@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:tns="http://thomasjohansen.it/hello_world_soap_http"
+        xmlns:x1="http://thomasjohansen.it/hello_world_soap_http/types"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        name="HelloWorld"
+        targetNamespace="http://thomasjohansen.it/hello_world_soap_http">
+
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema"
+                xmlns:tns="http://thomasjohansen.it/hello_world_soap_http/types"
+                targetNamespace="http://thomasjohansen.it/hello_world_soap_http/types"
+                elementFormDefault="qualified">
+
+            <simpleType name="string255">
+                <restriction base="string">
+                    <maxLength value="255"/>
+                </restriction>
+            </simpleType>
+
+            <element name="greetMe">
+                <complexType>
+                    <sequence>
+                        <element name="requestType" type="tns:string255"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="greetMeResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+        </schema>
+    </wsdl:types>
+
+    <wsdl:message name="greetMeRequest">
+        <wsdl:part element="x1:greetMe" name="in"/>
+    </wsdl:message>
+
+    <wsdl:message name="greetMeResponse">
+        <wsdl:part element="x1:greetMeResponse" name="out"/>
+    </wsdl:message>
+
+    <wsdl:portType name="Greeter">
+        <wsdl:operation name="greetMe">
+            <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
+            <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="greetMe">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="greetMeRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="greetMeResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="SOAPService">
+        <wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort">
+            <wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" URI="#UP_policy"/>
+            <soap:address location="https://localhost:9001/SoapContext/SoapPort"/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsp:Policy xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="UP_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <wsp:Policy>
+                        <sp:TransportToken>
+                            <wsp:Policy>
+                                <sp:HttpsToken>
+                                    <wsp:Policy/>
+                                </sp:HttpsToken>
+                            </wsp:Policy>
+                        </sp:TransportToken>
+                        <sp:Layout>
+                            <wsp:Policy>
+                                <sp:Strict/>
+                            </wsp:Policy>
+                        </sp:Layout>
+                        <sp:IncludeTimestamp/>
+                        <sp:AlgorithmSuite>
+                            <wsp:Policy>
+                                <sp:Basic128/>
+                            </wsp:Policy>
+                        </sp:AlgorithmSuite>
+                    </wsp:Policy>
+                </sp:TransportBinding>
+                <sp:SupportingTokens xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <wsp:Policy>
+                        <sp:UsernameToken sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+                            <wsp:Policy>
+                                <sp:WssUsernameToken11/>
+                            </wsp:Policy>
+                        </sp:UsernameToken>
+                    </wsp:Policy>
+                </sp:SupportingTokens>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+</wsdl:definitions>
